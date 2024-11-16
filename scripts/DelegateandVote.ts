@@ -16,7 +16,7 @@ import {
   bytecode as bytecode2,
 } from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
 dotenv.config();
-
+const proposal = process.argv.slice(2)[0];
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 const MINT_VALUE = parseEther("10");
@@ -63,11 +63,11 @@ async function main() {
   console.log(`Delegated voting power to ${deployer.account.address}`);
 
   //vote for proposal 1 
-  const voteTx = await TokenizedBallot.write.vote([1n, parseEther("0.5")], {
+  const voteTx = await TokenizedBallot.write.vote([BigInt(proposal), parseEther("1")], {
     account: deployer.account,
   });
   await publicClient.waitForTransactionReceipt({ hash: voteTx });
-  console.log(`Voted for proposal 1 with 0.5 tokens`);
+  console.log(`Voted for proposal ${proposal} with 0.5 tokens`);
 }
 
 main().catch((err) => {
