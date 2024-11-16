@@ -53,7 +53,6 @@ async function main() {
   );
 
   // Delegate voting power
-  // "0x5D5A100689B1702294f13983a3131d1d1B68D12D",
   const delegateTx = await tokenContract.write.delegate([deployer.account.address], {
     account: deployer.account,
   });
@@ -63,13 +62,6 @@ async function main() {
     `Account ${deployer.account.address
     } has ${formatEther(votesAfter)} units of voting power after self delegating\n`
   );
-
-  // const TokenizedBallot = getContract({
-  //   address: process.env.CONTRACT_ADDRESS_BALLOT as any,
-  //   abi: abi2,
-  //   client: { public: publicClient, wallet: deployer },
-  // });
-  // console.log(`Ballot deployed at ${TokenizedBallot.address}`);
 }
 
 
