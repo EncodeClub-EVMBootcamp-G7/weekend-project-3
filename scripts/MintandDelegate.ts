@@ -1,49 +1,28 @@
-// import { viem } from "hardhat";
+import { viem } from "hardhat";
 import {
   parseEther,
   formatEther,
-  createWalletClient,
-  toHex,
-  getContract,
 } from "viem";
-import { sepolia } from "viem/chains";
-import { createPublicClient, http } from "viem";
 import * as dotenv from "dotenv";
-import { privateKeyToAccount } from "viem/accounts";
-import { abi } from "../artifacts/contracts/MyERC20Votes.sol/MyToken.json";
-import {
-  abi as abi2,
-  bytecode as bytecode2,
-} from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
 
 dotenv.config();
 
-const providerApiKey = process.env.ALCHEMY_API_KEY || "";
-const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+const contractAddress = process.env.CONTRACT_ADDRESS_ERC20 || "";
+const contractName = "MyToken";
 
 const MINT_VALUE = parseEther("1");
 
 async function main() {
-  const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
+  const publicClient = await viem.getPublicClient();
+  const [deployer] = await viem.getWalletClients();
 
-  const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
+  // const proposals = ["arg1", "arg2", "arg3"];
 
-  const deployer = createWalletClient({
-    account,
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
-
-  const proposals = ["arg1", "arg2", "arg3"];
-
-  const tokenContract = getContract({
-    address: process.env.CONTRACT_ADDRESS_ERC20 as any,
-    abi: abi,
-    client: { public: publicClient, wallet: deployer },
-  });
+  const tokenContract = await viem.getContractAt(
+    contractName as string,
+    contractAddress as `0x${string}`,
+    { client: { wallet: deployer } }
+  );
   console.log(`MyToken deployed at ${tokenContract.address}`);
 
   // Mint tokens to acc1
