@@ -5,12 +5,7 @@ import { createPublicClient, http } from "viem";
 import * as dotenv from "dotenv";
 import { privateKeyToAccount } from "viem/accounts";
 import {
-  abi,
-  bytecode,
-} from "../artifacts/contracts/MyERC20Votes.sol/MyToken.json";
-import {
-  abi as abi2,
-  bytecode as bytecode2,
+  abi as abi,
 } from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
 import { getContract } from "viem";
 dotenv.config();
@@ -32,9 +27,9 @@ async function main() {
   });
   const proposals = ["arg1", "arg2", "arg3"];
 
-  const TokenizedBallot = await getContract({
-    address: contractAddress!,
-    abi: abi2,
+  const TokenizedBallot =  getContract({
+    address: process.env.CONTRACT_ADDRESS_BALLOT as any,
+    abi: abi,
     client: { public: publicClient, wallet: deployer },
   });
 

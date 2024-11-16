@@ -39,36 +39,12 @@ async function main() {
   });
   console.log(`MyToken deployed at ${tokenContract.address}`);
 
-  // Mint tokens to acc1
-  const mintTx = await tokenContract.write.mint([
-    deployer.account.address,
-    MINT_VALUE,
-  ]);
-  await publicClient.waitForTransactionReceipt({ hash: mintTx });
-  console.log(
-    `Minted ${formatEther(MINT_VALUE)} tokens to account ${
-      deployer.account.address
-    }`
-  );
-
-  // Check token balance
-  const balanceBN = await tokenContract.read.balanceOf([
-    deployer.account.address,
-  ]);
-
-  console.log(
-    `Account ${
-      deployer.account.address
-    } has ${balanceBN!.toString()} decimal units of MyToken\n`
-  );
-
   const votes = await tokenContract.read.getVotes([deployer.account.address]);
   console.log(
     `Account ${
       deployer.account.address
     } has ${votes!.toString()} units of voting power before self delegating\n`
   );
-
 
   const TokenizedBallot = getContract({
     address: process.env.CONTRACT_ADDRESS_BALLOT as any,
@@ -80,11 +56,20 @@ async function main() {
 
   // Delegate voting power
   const delegateTx = await tokenContract.write.delegate([
-    "0x5D5A100689B1702294f13983a3131d1d1B68D12D",
+    deployer.account.address,
   ]);
+
   await publicClient.waitForTransactionReceipt({ hash: delegateTx });
   console.log(`Delegated voting power to ${deployer.account.address}`);
+
+  //vote for proposal 1 
+  const voteTx = await TokenizedBallot.write.vote([1n, parseEther("0.5")], {
+    account: deployer.account,
+  });
+  await publicClient.waitForTransactionReceipt({ hash: voteTx });
+  console.log(`Voted for proposal 1 with 0.5 tokens`);
 }
+
 main().catch((err) => {
   console.error(err);
   process.exitCode = 1;

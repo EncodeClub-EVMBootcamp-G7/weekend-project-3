@@ -20,7 +20,7 @@ async function main() {
       acc1.account.address
     } has ${balanceBN.toString()} decimal units of MyToken\n`
   );
-
+  
   const votes = await contract.read.getVotes([acc1.account.address]);
   console.log(
     `Account ${

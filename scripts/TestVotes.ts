@@ -14,7 +14,7 @@ import {
 } from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
 import { getContract } from "viem";
 dotenv.config();
-const MINT_VALUE = parseEther("10"); // Mint 10 tokens for clarity
+const MINT_VALUE = parseEther("100"); // Mint 100 tokens for clarity
 
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
@@ -65,6 +65,23 @@ async function main() {
     deployer.account.address,
   ]);
 
+  const transfer1 = await tokenContract.write.transfer([
+    "0x59Dcf864B7B737c041Ba374Bd095ff1D724C6FE3",
+    parseEther("10"),
+  ]); //Mario2
+  const transfer2 = await tokenContract.write.transfer([
+    "0x5D5A100689B1702294f13983a3131d1d1B68D12D",
+    parseEther("10"),
+  ]); //Tamir
+  const transfer3 = await tokenContract.write.transfer([
+    "0x2f101Ee67aa478Fccee6e27386462CfFf814Fcd1",
+    parseEther("10"),
+  ]); //Oladipo
+  const transfer4 = await tokenContract.write.transfer([
+    "0x03C58D265dB3fEFE73e572Fd3005c77f950319eC",
+    parseEther("10"),
+  ]); //Victor
+
   console.log(
     `Account ${
       deployer.account.address
@@ -94,17 +111,11 @@ async function main() {
     hash: hash2,
   });
 
-  const TokenizedBallot =  getContract({
+  const TokenizedBallot = getContract({
     address: receipt2.contractAddress!,
     abi: abi2,
     client: { public: publicClient, wallet: deployer },
   });
-
-  /*const TokenizedBallot = await viem.deployContract("Ballot", [
-    proposals.map((prop) => toHex(prop, { size: 32 })), // Convert each proposal to bytes32
-    tokenContract.address, // Token contract address
-    BigInt(blockN), // Target block number, use BigInt for large numbers
-  ]);*/
   console.log(`Ballot deployed at ${TokenizedBallot.address}`);
 
   // Delegate voting power
