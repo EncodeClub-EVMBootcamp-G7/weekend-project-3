@@ -41,7 +41,7 @@ contract Ballot {
     }
 
     function winningProposal() public view
-            returns (uint winningProposal_)
+        returns (uint winningProposal_)
     {
         uint winningVoteCount = 0;
         for (uint p = 0; p < proposals.length; p++) {
@@ -53,7 +53,7 @@ contract Ballot {
     }
 
     function winnerName() external view
-            returns (bytes32 winnerName_)
+        returns (bytes32 winnerName_)
     {
         winnerName_ = proposals[winningProposal()].name;
     }

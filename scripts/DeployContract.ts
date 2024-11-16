@@ -4,13 +4,25 @@ import { parseEther, formatEther, toHex } from "viem";
 
 async function main() {
   const publicClient = await viem.getPublicClient();
-  // const [deployer] = await viem.getWalletClients();
+  const [deployer] = await viem.getWalletClients();
   const proposals = ["arg1", "arg2", "arg3"];
 
   // Deploy Token contract
   const tokenContract = await viem.deployContract("MyToken");
   console.log(`Token contract deployed at ${tokenContract.address}\n`);
 
+  // Mint tokens
+  const MINT_VALUE = parseEther("10");
+  const mintTx = await tokenContract.write.mint([deployer.account.address, MINT_VALUE]);
+  await publicClient.waitForTransactionReceipt({ hash: mintTx });
+  console.log(`Minted ${formatEther(MINT_VALUE)} units of MyToken to account ${deployer.account.address}\n`);
+
+  // Delegate tokens
+  const delegateTx = await tokenContract.write.delegate([deployer.account.address]);
+  await publicClient.waitForTransactionReceipt({ hash: delegateTx });
+  console.log(`Delegated ${formatEther(MINT_VALUE)} units of voting power to account ${deployer.account.address}\n`);
+
+  // Get target block number
   const targetBlockNumber = (await publicClient.getBlockNumber()) + 1n;
 
   // Deploy Ballot contract

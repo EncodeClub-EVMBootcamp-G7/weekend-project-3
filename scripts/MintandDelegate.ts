@@ -10,7 +10,7 @@ dotenv.config();
 const contractAddress = process.env.CONTRACT_ADDRESS_ERC20 || "";
 const contractName = "MyToken";
 
-const MINT_VALUE = parseEther("1");
+const MINT_VALUE = parseEther("10");
 
 async function main() {
   const publicClient = await viem.getPublicClient();
@@ -39,17 +39,17 @@ async function main() {
   // Check token balance
   const balanceBN = await tokenContract.read.balanceOf([
     deployer.account.address,
-  ]);
+  ]) as bigint;
 
   console.log(
     `Account ${deployer.account.address
-    } has ${balanceBN!.toString()} decimal units of MyToken\n`
+    } has ${formatEther(balanceBN)} units of MyToken\n`
   );
 
-  const votesBefore = await tokenContract.read.getVotes([deployer.account.address]);
+  const votesBefore = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
     `Account ${deployer.account.address
-    } has ${votesBefore!.toString()} units of voting power before self delegating\n`
+    } has ${formatEther(votesBefore)} units of voting power before self delegating\n`
   );
 
   // Delegate voting power
@@ -58,10 +58,10 @@ async function main() {
     account: deployer.account,
   });
   await publicClient.waitForTransactionReceipt({ hash: delegateTx });
-  const votesAfter = await tokenContract.read.getVotes([deployer.account.address]);
+  const votesAfter = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
     `Account ${deployer.account.address
-    } has ${votesAfter!.toString()} units of voting power after self delegating\n`
+    } has ${formatEther(votesAfter)} units of voting power after self delegating\n`
   );
 
   // const TokenizedBallot = getContract({
