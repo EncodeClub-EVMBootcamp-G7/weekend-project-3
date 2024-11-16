@@ -5,12 +5,13 @@ dotenv.config();
 
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+const account2PrivateKey = process.env.PRIVATE_KEY2 || "";
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
   networks: {
     sepolia: {
       url: `https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
+      accounts: [deployerPrivateKey, account2PrivateKey],
     },
   },
 };
