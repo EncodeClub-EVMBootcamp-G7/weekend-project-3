@@ -1,4 +1,5 @@
 import { viem } from "hardhat";
+<<<<<<< HEAD
 import { parseEther, formatEther, createWalletClient, toHex } from "viem";
 import { sepolia } from "viem/chains";
 import { createPublicClient, http } from "viem";
@@ -10,23 +11,28 @@ import {
 import { getContract } from "viem";
 dotenv.config();
 const MINT_VALUE = parseEther("10"); // Mint 10 tokens for clarity
+=======
+import { parseEther, formatEther, hexToString } from "viem";
+>>>>>>> refs/remotes/origin/main
 
-const providerApiKey = process.env.ALCHEMY_API_KEY || "";
-const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+const contractAddress = process.env.CONTRACT_ADDRESS_BALLOT as `0x${string}` || "";
+const contractName = "Ballot" as string;
 
 async function main() {
-  const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
-  const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
-  const deployer = createWalletClient({
-    account,
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
+  const [deployer] = await viem.getWalletClients();
+  const TokenizedBallot = await viem.getContractAt(
+    contractName,
+    contractAddress,
+    { client: { wallet: deployer } }
+  );
+
   const proposals = ["arg1", "arg2", "arg3"];
 
+<<<<<<< HEAD
   const TokenizedBallot =  getContract({
     address: process.env.CONTRACT_ADDRESS_BALLOT as any,
     abi: abi,
@@ -34,19 +40,22 @@ async function main() {
   });
 
 
+=======
+>>>>>>> refs/remotes/origin/main
   // Query the winning proposal
   const winningProposal = await TokenizedBallot.read.winningProposal();
   console.log(`Current winning proposal is: Proposal ${winningProposal}`);
 
   // Retrieve the winner's name
-  const winnerName = await TokenizedBallot.read.winnerName();
+  const winnerNamehex = await TokenizedBallot.read.winnerName() as `0x${string}`;
+  const winnerName = hexToString(winnerNamehex).replace(/\0+$/, '');  
   console.log(`Current winner is: ${winnerName}`);
 
   // Query vote count for each proposal
   for (let i = 0n; i < BigInt(proposals.length); i++) {
-    const proposal = await TokenizedBallot.read.proposals([i]);
+    const proposal = await TokenizedBallot.read.proposals([i]) as bigint;
     console.log(
-      `Proposal ${i}: ${proposals[Number(i)]} has ${proposal[1]} votes`
+      `Proposal ${i}: ${proposals[Number(i)]} has ${formatEther(proposal)} votes`
     );
   }
 }

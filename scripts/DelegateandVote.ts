@@ -2,50 +2,67 @@ import { viem } from "hardhat";
 import {
   parseEther,
   formatEther,
-  createWalletClient,
-  toHex,
-  getContract,
 } from "viem";
-import { sepolia } from "viem/chains";
-import { createPublicClient, http } from "viem";
 import * as dotenv from "dotenv";
-import { privateKeyToAccount } from "viem/accounts";
-import { abi } from "../artifacts/contracts/MyERC20Votes.sol/MyToken.json";
-import {
-  abi as abi2,
-  bytecode as bytecode2,
-} from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
+
 dotenv.config();
+<<<<<<< HEAD:scripts/DelegateandVote.ts
 const proposal = process.argv.slice(2)[0];
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+=======
+
+const contractAddress = process.env.CONTRACT_ADDRESS_ERC20 || "";
+const contractName = "MyToken";
+
+>>>>>>> refs/remotes/origin/main:scripts/MintandDelegate.ts
 const MINT_VALUE = parseEther("10");
+
 async function main() {
-  const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
-  const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
-  const deployer = createWalletClient({
-    account,
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
-  });
-  const proposals = ["arg1", "arg2", "arg3"];
-  const tokenContract = getContract({
-    address: process.env.CONTRACT_ADDRESS_ERC20 as any,
-    abi: abi,
-    client: { public: publicClient, wallet: deployer },
-  });
+  const publicClient = await viem.getPublicClient();
+  const [deployer] = await viem.getWalletClients();
+
+  // const proposals = ["arg1", "arg2", "arg3"];
+
+  const tokenContract = await viem.getContractAt(
+    contractName as string,
+    contractAddress as `0x${string}`,
+    { client: { wallet: deployer } }
+  );
   console.log(`MyToken deployed at ${tokenContract.address}`);
 
+<<<<<<< HEAD:scripts/DelegateandVote.ts
   const votes = await tokenContract.read.getVotes([deployer.account.address]);
+=======
+  // Mint tokens to acc1
+  const mintTx = await tokenContract.write.mint([
+    deployer.account.address,
+    MINT_VALUE,
+  ]);
+  await publicClient.waitForTransactionReceipt({ hash: mintTx });
   console.log(
-    `Account ${
-      deployer.account.address
-    } has ${votes!.toString()} units of voting power before self delegating\n`
+    `Minted ${formatEther(MINT_VALUE)
+    } tokens to account ${deployer.account.address}`
   );
 
+  // Check token balance
+  const balanceBN = await tokenContract.read.balanceOf([
+    deployer.account.address,
+  ]) as bigint;
+
+  console.log(
+    `Account ${deployer.account.address
+    } has ${formatEther(balanceBN)} units of MyToken\n`
+  );
+
+  const votesBefore = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
+>>>>>>> refs/remotes/origin/main:scripts/MintandDelegate.ts
+  console.log(
+    `Account ${deployer.account.address
+    } has ${formatEther(votesBefore)} units of voting power before self delegating\n`
+  );
+
+<<<<<<< HEAD:scripts/DelegateandVote.ts
   const TokenizedBallot = getContract({
     address: process.env.CONTRACT_ADDRESS_BALLOT as any,
     abi: abi2,
@@ -70,6 +87,21 @@ async function main() {
   console.log(`Voted for proposal ${proposal} with 0.5 tokens`);
 }
 
+=======
+  // Delegate voting power
+  const delegateTx = await tokenContract.write.delegate([deployer.account.address], {
+    account: deployer.account,
+  });
+  await publicClient.waitForTransactionReceipt({ hash: delegateTx });
+  const votesAfter = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
+  console.log(
+    `Account ${deployer.account.address
+    } has ${formatEther(votesAfter)} units of voting power after self delegating\n`
+  );
+}
+
+
+>>>>>>> refs/remotes/origin/main:scripts/MintandDelegate.ts
 main().catch((err) => {
   console.error(err);
   process.exitCode = 1;

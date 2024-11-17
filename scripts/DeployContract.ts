@@ -1,24 +1,28 @@
 import { viem } from "hardhat";
-import { parseEther, formatEther } from "viem";
-const MINT_VALUE=parseEther("1");
+import { parseEther, formatEther, toHex } from "viem";
+
+
 async function main() {
   const publicClient = await viem.getPublicClient();
-  const [deployer, acc1, acc2] = await viem.getWalletClients();
-  const contract = await viem.deployContract("MyToken");
-  console.log(`Token contract deployed at ${contract.address}\n`);
-  
-  const mintTx = await contract.write.mint([acc1.account.address, MINT_VALUE]);
+  const [deployer] = await viem.getWalletClients();
+  const proposals = ["arg1", "arg2", "arg3"];
+
+  // Deploy Token contract
+  const tokenContract = await viem.deployContract("MyToken");
+  console.log(`Token contract deployed at ${tokenContract.address}\n`);
+
+  // Mint tokens
+  const MINT_VALUE = parseEther("10");
+  const mintTx = await tokenContract.write.mint([deployer.account.address, MINT_VALUE]);
   await publicClient.waitForTransactionReceipt({ hash: mintTx });
-  console.log(
-    `Minted ${MINT_VALUE.toString()} decimal units to account ${
-      acc1.account.address
-    }\n`
-  );
-  const balanceBN = await contract.read.balanceOf([acc1.account.address]);
+  const balanceBN = await tokenContract.read.balanceOf([deployer.account.address]) as bigint;
+  console.log(`Minted ${formatEther(balanceBN)} units of MyToken to account ${deployer.account.address}\n`);
+
+  const votesBefore = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
     `Account ${
-      acc1.account.address
-    } has ${balanceBN.toString()} decimal units of MyToken\n`
+      deployer.account.address
+    } has ${formatEther(votesBefore)} units of voting power before self delegating\n`
   );
   
   const votes = await contract.read.getVotes([acc1.account.address]);
@@ -31,12 +35,24 @@ async function main() {
     account: acc1.account,
   });
   await publicClient.waitForTransactionReceipt({ hash: delegateTx });
-  const votesAfter = await contract.read.getVotes([acc1.account.address]);
+
+  const votesAfter = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
     `Account ${
-      acc1.account.address
-    } has ${votesAfter.toString()} units of voting power after self delegating\n`
+      deployer.account.address
+    } has ${formatEther(votesAfter)} units of voting power after self delegating\n`
   );
+
+  // Get target block number
+  const targetBlockNumber = (await publicClient.getBlockNumber()) + 1n;
+
+  // Deploy Ballot contract
+  const TokenizedBallot = await viem.deployContract("Ballot", [
+    proposals.map((prop) => toHex(prop, { size: 32 })),
+    tokenContract.address,
+    targetBlockNumber,
+  ]);
+  console.log(`Ballot deployed at ${TokenizedBallot.address}`);
 }
 
 main().catch((err) => {
