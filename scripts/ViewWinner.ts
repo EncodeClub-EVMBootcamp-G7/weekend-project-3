@@ -1,19 +1,5 @@
 import { viem } from "hardhat";
-<<<<<<< HEAD
-import { parseEther, formatEther, createWalletClient, toHex } from "viem";
-import { sepolia } from "viem/chains";
-import { createPublicClient, http } from "viem";
-import * as dotenv from "dotenv";
-import { privateKeyToAccount } from "viem/accounts";
-import {
-  abi as abi,
-} from "../artifacts/contracts/TokenizedBalot.sol/Ballot.json";
-import { getContract } from "viem";
-dotenv.config();
-const MINT_VALUE = parseEther("10"); // Mint 10 tokens for clarity
-=======
 import { parseEther, formatEther, hexToString } from "viem";
->>>>>>> refs/remotes/origin/main
 
 import * as dotenv from "dotenv";
 
@@ -32,16 +18,6 @@ async function main() {
 
   const proposals = ["arg1", "arg2", "arg3"];
 
-<<<<<<< HEAD
-  const TokenizedBallot =  getContract({
-    address: process.env.CONTRACT_ADDRESS_BALLOT as any,
-    abi: abi,
-    client: { public: publicClient, wallet: deployer },
-  });
-
-
-=======
->>>>>>> refs/remotes/origin/main
   // Query the winning proposal
   const winningProposal = await TokenizedBallot.read.winningProposal();
   console.log(`Current winning proposal is: Proposal ${winningProposal}`);
