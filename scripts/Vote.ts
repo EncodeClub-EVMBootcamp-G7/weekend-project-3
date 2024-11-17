@@ -10,7 +10,7 @@ const contractName = "Ballot" as string;
 
 async function main() {
   const publicClient = await viem.getPublicClient();
-  const [deployer, account2] = await viem.getWalletClients();
+  const [deployer] = await viem.getWalletClients();
 
   // const proposals = ["arg1", "arg2", "arg3"];
 
@@ -29,7 +29,7 @@ async function main() {
   );
 
   // Cast a vote on proposal
-  const proposalIndex = 1;
+  const proposalIndex = 0;
   const voteAmount = parseEther("1");
   const voteTx = await TokenizedBallot.write.vote([proposalIndex, voteAmount], {
     account: deployer.account,

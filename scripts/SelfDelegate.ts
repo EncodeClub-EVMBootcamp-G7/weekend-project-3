@@ -14,41 +14,41 @@ const contractName = "MyToken";
 
 async function main() {
   const publicClient = await viem.getPublicClient();
-  const [_, account2] = await viem.getWalletClients();
+  const [deployer] = await viem.getWalletClients();
 
   // const proposals = ["arg1", "arg2", "arg3"];
 
   const tokenContract = await viem.getContractAt(
     contractName as string,
     contractAddress as `0x${string}`,
-    { client: { wallet: account2 } }
+    { client: { wallet: deployer } }
   );
   console.log(`MyToken was deployed at ${tokenContract.address}`);
 
   // Check token balance
   const balanceBN = await tokenContract.read.balanceOf([
-    account2.account.address,
+    deployer.account.address,
   ]) as bigint;
 
   console.log(
-    `Account ${account2.account.address
+    `Account ${deployer.account.address
     } has ${formatEther(balanceBN)} units of MyToken\n`
   );
 
-  const votesBefore = await tokenContract.read.getVotes([account2.account.address]) as bigint;
+  const votesBefore = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
-    `Account ${account2.account.address
+    `Account ${deployer.account.address
     } has ${formatEther(votesBefore)} units of voting power before self delegating\n`
   );
 
   // Delegate voting power
-  const delegateTx = await tokenContract.write.delegate([account2.account.address], {
-    account: account2.account,
+  const delegateTx = await tokenContract.write.delegate([deployer.account.address], {
+    account: deployer.account,
   });
   await publicClient.waitForTransactionReceipt({ hash: delegateTx });
-  const votesAfter = await tokenContract.read.getVotes([account2.account.address]) as bigint;
+  const votesAfter = await tokenContract.read.getVotes([deployer.account.address]) as bigint;
   console.log(
-    `Account ${account2.account.address
+    `Account ${deployer.account.address
     } has ${formatEther(votesAfter)} units of voting power after self delegating\n`
   );
 }
